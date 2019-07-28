@@ -1,0 +1,16 @@
+
+.form-control-lg {
+    height: calc(1.5em + 3rem + 2px);
+}
+
+label {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.alert {
+    position: absolute;
+    top: 50px;
+    min-width: 50%;
+}
+
