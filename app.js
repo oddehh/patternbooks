@@ -6,12 +6,13 @@ class Book {
     this.title = title
     this.isLend = isLend
     this.timesLend = timesLend
-    this.dateLend = UI.dateNow()
+
   }
 
 }
 
 class UI {
+
   addBookToList(book) {
     const list = document.getElementById('book-list')
     // create tr element
@@ -35,10 +36,7 @@ class UI {
     // insert alert
     container.insertBefore(div, form)
 
-    setTimeout(function () {
-      document.querySelector('.alert')
-        .remove()
-    }, 3000)
+    setTimeout( () => document.querySelector('.alert').remove(), 3000)
   }
 
   deleteBook(target) {
@@ -58,6 +56,7 @@ class UI {
 
 
 class Store {
+
   static getBooks() {
     let books
     if(localStorage.getItem('books') === null) {
