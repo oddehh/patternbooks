@@ -183,25 +183,18 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
     // replace for different new lines (OS, win, linux)
     const lines = data.replace(/(?:\r\n|\r|\n)/g, '|').split('|')
 
-    const arrayOfBooks = lines.map( (line) => {
-      const obj = {}
+    // two dimensional array
+    const array = lines.map( line => line.split('\t') )
 
-      const array = line.split('\t')
+    array.forEach((item) => {
+    // title and brand is being converted to object by instanciation
+      const book = new Book(item[1], item[0])
 
-      obj.title = array[1]
-      obj.brand = array[0]
-
-      return obj
-    })
-
-    arrayOfBooks.forEach((obj) => {
-      const book = new Book(obj.title, obj.brand)
       Store.addBook(book)
       UI.addBookToList(book)
       UI.clearFields()
       UI.showAlert('Wzorniki zostały dodane', 'alert-success')
     })
-
   }
 })
 
