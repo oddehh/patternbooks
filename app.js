@@ -3,7 +3,7 @@ class Book {
   constructor(title, brand, isLend = false, timesLend = 0, dateLend = '', whoLend = '') {
     this.brand = brand
     this.dateCreated = UI.dateNow()
-    this.id = (title + brand).replace(/\s+/g, '')
+    this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
     this.title = title
     this.isLend = isLend
     this.timesLend = timesLend
@@ -27,7 +27,7 @@ class UI {
     row.classList.add('book-row')
     row.dataset.bookid = book.id
 
-    row.innerHTML = `
+      row.innerHTML = `
       <td>${book.title}</td>
       <td>${book.brand}</td>
       <td>x dni temu (${book.dateCreated})</td>
@@ -67,25 +67,24 @@ class UI {
     }
   }
 
-  static dateNow() {
-    let utc = new Date().toJSON().slice(0, 10).replace(/-/g, '/')
-    return utc
-  }
-
-  static filterToScanned(value) {
+  static filterToScanned(scanValue) {
     // get books
     const books = Store.getBooks()
 
     // filter books with by id
-    const filteredBooks = books.filter((book) => book.id.toLowerCase().includes(value.replace(/\s+/g, '').toLowerCase()))
+    const filteredBooks = books.filter((book) => book.id.includes(scanValue.replace(/\s+/g, '').toLowerCase()))
 
     // clear list
     UI.clearList()
     // display filtered books
     filteredBooks.forEach( (book) => {
-
-        UI.addBookToList(book)
+      UI.addBookToList(book)
     })
+  }
+
+  static dateNow() {
+    let utc = new Date().toJSON().slice(0, 10).replace(/-/g, '/')
+    return utc
   }
 
   static clearList() {
@@ -216,9 +215,9 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 // Event scaned a book
 document.querySelector('#id-scan').addEventListener('keyup', (e) => {
   // gonna need debounce link in underscorejs
-  const value = e.target.value
-  if(value) {
-    UI.filterToScanned(value)
+  const scanValue = e.target.value
+  if (scanValue) {
+    UI.filterToScanned(scanValue)
   } else {
     UI.clearList()
     UI.displayBooks()
