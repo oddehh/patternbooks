@@ -1,14 +1,45 @@
+// cached variables
+const manySwitch = document.querySelector('#addManySwitch')
+
 // Book Class: represents a book
 class Book {
-  constructor(title, brand, isLend = false, timesLend = 0, dateLend = '', whoLend = '') {
+  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined, whoLend = {} ) {
     this.brand = brand
-    this.dateCreated = UI.dateNow()
+    this.dateCreated = new Date() // UI.dateNow()
     this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
     this.title = title
     this.isLend = isLend
     this.timesLend = timesLend
     this.dateLend = dateLend
     this.whoLend = whoLend
+  }
+
+  static lendToggle(bookId) {
+
+    // get books
+    const books = Store.getBooks()
+
+    // find the book
+    const filteredBook = books.find(book => book.id === bookId)
+
+    if(!filteredBook.isLend) {
+      filteredBook.whoLend.name = document.querySelector('#fullname').value
+      filteredBook.whoLend.agency = document.querySelector('#agency').value
+      filteredBook.whoLend.phone = document.querySelector('#phone').value
+      filteredBook.whoLend.deposit = document.querySelector('#deposit').valueAsNumber
+
+      filteredBook.timesLend = filteredBook.timesLend + 1
+      filteredBook.dateLend = new Date() // UI.dateNow()
+
+    } else {
+      filteredBook.dateLend = ''
+    }
+
+    // toggle isLend
+    filteredBook.isLend = !filteredBook.isLend
+    // save books
+    localStorage.setItem('books', JSON.stringify(books))
+    console.log(filteredBook)
   }
 }
 
@@ -27,20 +58,27 @@ class UI {
     row.classList.add('book-row')
     row.dataset.bookid = book.id
 
-      row.innerHTML = `
+
+    row.innerHTML = `
       <td>${book.title}</td>
       <td>${book.brand}</td>
-      <td>x dni temu (${book.dateCreated})</td>
-      <td>${book.deposit}</td>
-      <td><a class="delete small text-danger" href="#" data-bookId="${book.id}">Usuń</a></td>
+      <td>${ book.isLend ?  UI.dateDiff(book) + ' dni temu (' + UI.dateNow(new Date(book.dateLend)) +')' : ''}</td>
+      <td>${ book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''}</td>
+      <td><btn class="btn ${book.isLend ? 'btn-success' : 'btn-primary' } lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? "Oddaj" : "Wypożycz"}</btn></td>
+      <td>
+        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${book.id}" data-bookid="${book.id}">Edytuj</a>
+        <a class="delete small text-danger" href="#" data-bookid="${book.id}">Usuń</a>
+      </td>
     `
+
+
     list.appendChild(row)
   }
 
   static deleteBook(el) {
     if(el.classList.contains('delete')) {
       const bookId = el.dataset.bookid
-      document.querySelector(`.book-row[data-bookId="${bookId}"]`)
+      document.querySelector(`.book-row[data-bookid="${bookId}"]`)
         .remove()
     }
   }
@@ -58,13 +96,15 @@ class UI {
     setTimeout(() => document.querySelector('.alert').remove(), 3000)
   }
 
-  static clearFields() {
-    if (!document.querySelector('#addManySwitch').checked) {
-      document.getElementById('title').value = ''
-      document.getElementById('brand').value = ''
-    } else {
-      document.getElementById('addManyInput').value = ''
-    }
+  static clearFields(...args) {
+    // OLD WAY, with no arguments
+    // if (!manySwitch.checked) {
+    //   document.getElementById('title').value = ''
+    //   document.getElementById('brand').value = ''
+    // } else {
+    //   document.getElementById('addManyInput').value = ''
+    // }
+    args.map(arg => arg.value = '')
   }
 
   static filterToScanned(scanValue) {
@@ -77,7 +117,7 @@ class UI {
     // clear list
     UI.clearList()
     // display filtered books
-    filteredBooks.forEach( (book) => {
+    filteredBooks.forEach((book) => {
       UI.addBookToList(book)
     })
   }
@@ -85,6 +125,18 @@ class UI {
   static dateNow() {
     let utc = new Date().toJSON().slice(0, 10).replace(/-/g, '/')
     return utc
+  }
+
+  static dateDiff(book) {
+
+    // date conversions from JSON.stringify
+    const dateNow = new Date()
+    const dateLend = new Date(book.dateLend)
+
+    const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
+    const diffDays = Math.floor( diffTime / (1000 *60 * 60 *24 ))
+
+    return diffDays
   }
 
   static clearList() {
@@ -135,48 +187,41 @@ class Store {
   }
 }
 
+
 // Event: Display Books
 document.addEventListener('DOMContentLoaded', UI.displayBooks)
 
 
 // Event: Add a Book
 document.querySelector('#book-form').addEventListener('submit', (e) => {
+
   e.preventDefault()
 
-  // if one only:
-  const manySwitch = document.querySelector('#addManySwitch')
-  if (!manySwitch.checked) {
-
-    const title = document.querySelector('#title').value;
-    const brand = document.querySelector('#brand').value;
-    const deposit = document.querySelector('#deposit').value;
-
-    // Validate
-    if(title === '' || brand === '') {
-      UI.showAlert('Uzupełnij tytuł i markę', 'alert-danger')
-    } else {
-      // instatiate book
-      const book = new Book (title, brand)
-
-      // add book to UI
-      UI.addBookToList(book)
-
-      // add to Local Storage
-      Store.addBook(book)
-
-      // show success alert
-      UI.showAlert('Wzornik został dodany', 'alert-success')
-
-      UI.clearFields()
-
-    }
-  }
-
-  // adding many books from list
+  const title = document.querySelector('#title').value;
+  const brand = document.querySelector('#brand').value;
+  const deposit = document.querySelector('#deposit').value;
   const data = document.querySelector('#addManyInput').value
 
-  if (manySwitch.checked && data) {
+    // Validate
+  if ( (!data && (!title || !brand)) || (!data && !title & !brand) ) {
+      UI.showAlert('Uzupełnij tytuł i markę LUB dodaj wiele', 'alert-danger')
+  } else if (manySwitch.checked && !!title && !!brand && !data) {
+    // instatiate book
+    const book = new Book (title, brand)
 
+    // add book to UI
+    UI.addBookToList(book)
+
+    // add to Local Storage
+    Store.addBook(book)
+
+    // show success alert
+    UI.showAlert('Wzornik został dodany', 'alert-success')
+
+    UI.clearFields(document.querySelector('#title'), document.querySelector('#brand'))
+
+  } else if (manySwitch.checked && !!data && !title && !brand) {
+    // adding many books from list
     // get array of book objects from data
 
     // replace for different new lines (OS, win, linux)
@@ -191,9 +236,11 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
 
       Store.addBook(book)
       UI.addBookToList(book)
-      UI.clearFields()
+      UI.clearFields(document.querySelector('#addManyInput'))
       UI.showAlert('Wzorniki zostały dodane', 'alert-success')
     })
+  } else {
+    UI.showAlert('Możesz dodać tylko jeden wzornik LUB tylko wiele', 'alert-danger')
   }
 })
 
@@ -211,7 +258,6 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
   }
 })
 
-
 // Event scaned a book
 document.querySelector('#id-scan').addEventListener('keyup', (e) => {
   // gonna need debounce link in underscorejs
@@ -222,4 +268,34 @@ document.querySelector('#id-scan').addEventListener('keyup', (e) => {
     UI.clearList()
     UI.displayBooks()
   }
+})
+
+
+// lend a book
+document.querySelector('#book-list').addEventListener('click', (e) => {
+
+  e.preventDefault()
+
+  // remove book from UI >> trzeba zmienić na toggle lend info in UI
+  // UI.deleteBook(e.target)
+
+  if (e.target.classList.contains('lend-btn')) {
+    // toggle lend
+    Book.lendToggle(e.target.dataset.bookid)
+
+    // display filtered books
+    const scanValue = document.querySelector('#id-scan').value
+    UI.filterToScanned(scanValue)
+
+    UI.showAlert('Wzornik został wypożyczony / oddany', 'alert-success')
+  }
+})
+
+// clear button for form
+document.querySelector('#book-form a.link-clear').addEventListener('click', (e) => {
+  e.preventDefault()
+
+  Array.from(document.querySelectorAll('.contact input'), field => field.value = '')
+  document.querySelector('#id-scan').value = ''
+
 })
