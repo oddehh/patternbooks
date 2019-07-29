@@ -25,22 +25,14 @@
   <div class="container mt-5">
 
     <form id="book-form">
+      <!-- scanning -->
       <div class="form-group">
         <label for="id-scan">Zeskanuj</label>
         <input type="text" id="id-scan" class="form-control form-control-lg" placeholder="">
       </div>
 
-      <div class="form-row">
-        <div class="col form-group">
-          <label for="title">Tytuł</label>
-          <input type="text" id="title" class="form-control" placeholder="np. Fornasetti II">
-        </div>
-        <div class="col form-group">
-          <label for="brand">Marka</label>
-          <input type="text" id="brand" class="form-control" placeholder="np. Cole & Son">
-        </div>
-      </div>
 
+      <!-- lending books -->
       <div class="form-row">
         <div class="col-md-4 form-group">
           <label for="fullname">Kto wypożycza</label>
@@ -56,21 +48,42 @@
         </div>
         <div class="col-md-2 form-group">
           <label for="deposit">Kaucja [zł]</label>
-          <input type="number" id="deposit" class="form-control" placeholder="" pattern="[0-9]{0,4}">
+          <input type="number" id="deposit" class="form-control" min="0" value="0" step="50" placeholder="" pattern="[0-9]{0,4}">
         </div>
       </div>
 
+      <!-- switch -->
       <div class="custom-control custom-switch mt-2 mb-4">
-        <input type="checkbox" data-toggle="collapse" data-target="#addManyArea" class="custom-control-input" id="addManySwitch">
-        <label class="custom-control-label" for="addManySwitch">Dodaj wiele</label>
+        <input type="checkbox" data-toggle="collapse" data-target="#addBooks" class="custom-control-input" id="addManySwitch">
+        <label class="custom-control-label" for="addManySwitch">Dodaj</label>
       </div>
 
-      <div class="collapse form-group" id="addManyArea">
-        <textarea rows="5" class="form form-control" id="addManyInput"></textarea>
-      </div>
+      <!-- adding books -->
+      <div class="collapse" id="addBooks">
 
-      <div class="form-group mt-5">
-        <button class="btn btn-primary btn-block btn-lg" type="submit">Wypożycz / Dodaj</button>
+        <div class="form-row">
+          <div class="col-md-6">
+            <div class="col form-group">
+              <label for="title">Tytuł</label>
+              <input type="text" id="title" class="form-control" placeholder="np. Fornasetti II">
+            </div>
+            <div class="col form-group">
+              <label for="brand">Marka</label>
+              <input type="text" id="brand" class="form-control" placeholder="np. Cole & Son">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div  class="form-group" id="addManyArea">
+              <label for="addManyInput">Dodaj wiele</label>
+              <textarea rows="5" class="form form-control" id="addManyInput"></textarea>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="form-group mt-5">
+          <button class="btn btn-primary btn-block btn-lg" type="submit">Wypożycz / Dodaj</button>
+        </div>
       </div>
     </form>
 
