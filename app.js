@@ -39,7 +39,7 @@ class Book {
       filteredBook.dateLend = new Date()
 
     } else {
-      // push to history
+      // create history entry
       const historyEntry = new Object()
 
       historyEntry.name = filteredBook.whoLend.name
@@ -49,7 +49,7 @@ class Book {
       historyEntry.dateLend = filteredBook.dateLend
       historyEntry.dateReturned = new Date()
 
-      console.log(historyEntry)
+      // push to history
       filteredBook.history.push(historyEntry)
 
       // clear date lend
