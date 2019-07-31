@@ -26,7 +26,7 @@ class Book {
       filteredBook.whoLend.name = document.querySelector('#fullname').value
       filteredBook.whoLend.agency = document.querySelector('#agency').value
       filteredBook.whoLend.phone = document.querySelector('#phone').value
-      filteredBook.whoLend.deposit = document.querySelector('#deposit').valueAsNumber
+      filteredBook.whoLend.deposit = document.querySelector('#deposit').value
 
       filteredBook.timesLend = filteredBook.timesLend + 1
       filteredBook.dateLend = new Date() // UI.dateNow()
