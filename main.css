@@ -21,3 +21,11 @@ label {
     top: 2rem;
     position: absolute;
 } */
+
+h4 {
+    font-size: 1rem;
+}
+
+.font-deposit-info {
+    font-weight: 500;
+}

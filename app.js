@@ -3,15 +3,16 @@ const manySwitch = document.querySelector('#addManySwitch')
 
 // Book Class: represents a book
 class Book {
-  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined, whoLend = {} ) {
+  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined, whoLend = {}, history = []) {
     this.brand = brand
-    this.dateCreated = new Date() // UI.dateNow()
+    this.dateCreated = new Date()
     this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
     this.title = title
     this.isLend = isLend
     this.timesLend = timesLend
     this.dateLend = dateLend
     this.whoLend = whoLend
+    this.history = history
   }
 
   static lendToggle(bookId) {
@@ -22,16 +23,36 @@ class Book {
     // find the book
     const filteredBook = books.find(book => book.id === bookId)
 
+    // get values
+    const whoLendName = document.querySelector('#fullname').value
+    const whoLendAgency = document.querySelector('#agency').value
+    const whoLendPhone = document.querySelector('#phone').value
+    const whoLendDeposit = document.querySelector('#deposit').value
+
     if(!filteredBook.isLend) {
-      filteredBook.whoLend.name = document.querySelector('#fullname').value
-      filteredBook.whoLend.agency = document.querySelector('#agency').value
-      filteredBook.whoLend.phone = document.querySelector('#phone').value
-      filteredBook.whoLend.deposit = document.querySelector('#deposit').value
+      filteredBook.whoLend.name = whoLendName
+      filteredBook.whoLend.agency = whoLendAgency
+      filteredBook.whoLend.phone = whoLendPhone
+      filteredBook.whoLend.deposit = whoLendDeposit
 
       filteredBook.timesLend = filteredBook.timesLend + 1
-      filteredBook.dateLend = new Date() // UI.dateNow()
+      filteredBook.dateLend = new Date()
 
     } else {
+      // push to history
+      const historyEntry = new Object()
+
+      historyEntry.name = filteredBook.whoLend.name
+      historyEntry.agency = filteredBook.whoLend.agency
+      historyEntry.phone = filteredBook.whoLend.phone
+      historyEntry.deposit = filteredBook.whoLend.deposit
+      historyEntry.dateLend = filteredBook.dateLend
+      historyEntry.dateReturned = new Date()
+
+      console.log(historyEntry)
+      filteredBook.history.push(historyEntry)
+
+      // clear date lend
       filteredBook.dateLend = ''
     }
 
@@ -60,10 +81,16 @@ class UI {
 
 
     row.innerHTML = `
-      <td>${book.title}</td>
-      <td>${book.brand}</td>
-      <td>${ book.isLend ?  UI.dateDiff(book) + ' dni temu (' + UI.dateNow(new Date(book.dateLend)) +')' : ''}</td>
-      <td>${ book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''}</td>
+      <td>
+        <h4>${book.title}</h4>
+        <p>${book.brand}</p>
+      </td>
+      <td>
+        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(book.dateLend)) + ')' : ''}</p>
+        <p class="font-deposit-info">${ book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''}</p>
+      </td>
+      <td></td>
+      <td></td>
       <td><btn class="btn ${book.isLend ? 'btn-success' : 'btn-primary' } lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? "Oddaj" : "Wypożycz"}</btn></td>
       <td>
         <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${book.id}" data-bookid="${book.id}">Edytuj</a>
@@ -122,8 +149,8 @@ class UI {
     })
   }
 
-  static dateNow() {
-    let utc = new Date().toJSON().slice(0, 10).replace(/-/g, '/')
+  static dateHuman(date) {
+    let utc = date.toJSON().slice(0, 10).replace(/-/g, '/')
     return utc
   }
 
@@ -143,6 +170,19 @@ class UI {
     const form = document.querySelector('#book-list')
     while (form.firstChild) {
       form.removeChild(form.firstChild)
+    }
+  }
+
+  static daysAgo(num) {
+    switch (num) {
+      case 0:
+        return "Dzisiaj"
+        break
+      case 1:
+        return "Wczoraj"
+        break
+      default :
+        return `${num} dni temu`
     }
   }
 }
@@ -242,6 +282,8 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
   } else {
     UI.showAlert('Możesz dodać tylko jeden wzornik LUB tylko wiele', 'alert-danger')
   }
+
+
 })
 
 // Event remove a book
@@ -276,9 +318,6 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 
   e.preventDefault()
 
-  // remove book from UI >> trzeba zmienić na toggle lend info in UI
-  // UI.deleteBook(e.target)
-
   if (e.target.classList.contains('lend-btn')) {
     // toggle lend
     Book.lendToggle(e.target.dataset.bookid)
@@ -292,10 +331,11 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 })
 
 // clear button for form
-document.querySelector('#book-form a.link-clear').addEventListener('click', (e) => {
+document.querySelector('#book-form .link-clear').addEventListener('click', (e) => {
+
   e.preventDefault()
 
-  Array.from(document.querySelectorAll('.contact input'), field => field.value = '')
-  document.querySelector('#id-scan').value = ''
+  Array.from(document.querySelectorAll('input, textarea'), field => field.value = '')
+  UI.displayBooks()
 
 })
