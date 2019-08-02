@@ -362,5 +362,6 @@ document
       document.querySelectorAll('input, textarea'),
       field => (field.value = '')
     )
+    UI.clearList()
     UI.displayBooks()
   })
