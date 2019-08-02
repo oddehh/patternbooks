@@ -3,7 +3,15 @@ const manySwitch = document.querySelector('#addManySwitch')
 
 // Book Class: represents a book
 class Book {
-  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined, whoLend = {}, history = []) {
+  constructor(
+    title,
+    brand,
+    isLend = false,
+    timesLend = 0,
+    dateLend = undefined,
+    whoLend = {},
+    history = []
+  ) {
     this.brand = brand
     this.dateCreated = new Date()
     this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
@@ -16,7 +24,6 @@ class Book {
   }
 
   static lendToggle(bookId) {
-
     // get books
     const books = Store.getBooks()
 
@@ -29,7 +36,7 @@ class Book {
     const whoLendPhone = document.querySelector('#phone').value
     const whoLendDeposit = document.querySelector('#deposit').value
 
-    if(!filteredBook.isLend) {
+    if (!filteredBook.isLend) {
       filteredBook.whoLend.name = whoLendName
       filteredBook.whoLend.agency = whoLendAgency
       filteredBook.whoLend.phone = whoLendPhone
@@ -37,7 +44,6 @@ class Book {
 
       filteredBook.timesLend = filteredBook.timesLend + 1
       filteredBook.dateLend = new Date()
-
     } else {
       // create history entry
       const historyEntry = new Object()
@@ -69,7 +75,7 @@ class UI {
   static displayBooks() {
     const books = Store.getBooks()
 
-    books.forEach((book) => UI.addBookToList(book))
+    books.forEach(book => UI.addBookToList(book))
   }
 
   static addBookToList(book) {
@@ -79,34 +85,48 @@ class UI {
     row.classList.add('book-row')
     row.dataset.bookid = book.id
 
-
     row.innerHTML = `
       <td>
         <h4>${book.title}</h4>
         <p>${book.brand}</p>
       </td>
       <td>
-        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(book.dateLend)) + ')' : ''}</p>
-        <p class="font-deposit-info">${ book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''}</p>
+        <p class="mb-0">${
+          book.isLend
+            ? UI.daysAgo(UI.dateDiff(book)) +
+              ' (' +
+              UI.dateHuman(new Date(book.dateLend)) +
+              ')'
+            : ''
+        }</p>
+        <p class="font-deposit-info">${
+          book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''
+        }</p>
       </td>
       <td></td>
       <td></td>
-      <td><btn class="btn ${book.isLend ? 'btn-success' : 'btn-primary' } lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? "Oddaj" : "Wypożycz"}</btn></td>
+      <td><btn class="btn ${
+        book.isLend ? 'btn-success' : 'btn-primary'
+      } lend-btn btn-block" data-bookid="${book.id}">${
+      book.isLend ? 'Oddaj' : 'Wypożycz'
+    }</btn></td>
       <td>
-        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${book.id}" data-bookid="${book.id}">Edytuj</a>
-        <a class="delete small text-danger" href="#" data-bookid="${book.id}">Usuń</a>
+        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${
+          book.id
+        }" data-bookid="${book.id}">Edytuj</a>
+        <a class="delete small text-danger" href="#" data-bookid="${
+          book.id
+        }">Usuń</a>
       </td>
     `
-
 
     list.appendChild(row)
   }
 
   static deleteBook(el) {
-    if(el.classList.contains('delete')) {
+    if (el.classList.contains('delete')) {
       const bookId = el.dataset.bookid
-      document.querySelector(`.book-row[data-bookid="${bookId}"]`)
-        .remove()
+      document.querySelector(`.book-row[data-bookid="${bookId}"]`).remove()
     }
   }
 
@@ -131,7 +151,7 @@ class UI {
     // } else {
     //   document.getElementById('addManyInput').value = ''
     // }
-    args.map(arg => arg.value = '')
+    args.map(arg => (arg.value = ''))
   }
 
   static filterToScanned(scanValue) {
@@ -139,29 +159,34 @@ class UI {
     const books = Store.getBooks()
 
     // filter books with by id
-    const filteredBooks = books.filter((book) => book.id.includes(scanValue.replace(/\s+/g, '').toLowerCase()))
+    const filteredBooks = books.filter(book =>
+      book.id.includes(scanValue.replace(/\s+/gi, '').toLowerCase())
+    )
 
     // clear list
     UI.clearList()
     // display filtered books
-    filteredBooks.forEach((book) => {
+    filteredBooks.forEach(book => {
       UI.addBookToList(book)
     })
   }
 
   static dateHuman(date) {
-    let utc = date.toJSON().slice(0, 10).replace(/-/g, '/')
-    return utc
+    // let humanDate = date.toJSON().slice(0, 10).replace(/-/g, '/')
+    let humanDate = date.toLocaleDateString('pl-PL', {
+      month: 'numeric',
+      day: 'numeric',
+    })
+    return humanDate
   }
 
   static dateDiff(book) {
-
     // date conversions from JSON.stringify
     const dateNow = new Date()
     const dateLend = new Date(book.dateLend)
 
     const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
-    const diffDays = Math.floor( diffTime / (1000 *60 * 60 *24 ))
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
     return diffDays
   }
@@ -176,17 +201,16 @@ class UI {
   static daysAgo(num) {
     switch (num) {
       case 0:
-        return "Dzisiaj"
+        return 'Dzisiaj'
         break
       case 1:
-        return "Wczoraj"
+        return 'Wczoraj'
         break
-      default :
+      default:
         return `${num} dni temu`
     }
   }
 }
-
 
 // Store Class: Handles Local Storage
 class Store {
@@ -203,10 +227,10 @@ class Store {
   static displayBooks() {
     const books = Store.getBooks()
 
-    books.forEach((book) => {
-      const ui = new UI
+    books.forEach(book => {
+      const ui = new UI()
       ui.addBookToList(book)
-    });
+    })
   }
 
   static addBook(book) {
@@ -227,27 +251,24 @@ class Store {
   }
 }
 
-
 // Event: Display Books
 document.addEventListener('DOMContentLoaded', UI.displayBooks)
 
-
 // Event: Add a Book
-document.querySelector('#book-form').addEventListener('submit', (e) => {
-
+document.querySelector('#book-form').addEventListener('submit', e => {
   e.preventDefault()
 
-  const title = document.querySelector('#title').value;
-  const brand = document.querySelector('#brand').value;
-  const deposit = document.querySelector('#deposit').value;
+  const title = document.querySelector('#title').value
+  const brand = document.querySelector('#brand').value
+  const deposit = document.querySelector('#deposit').value
   const data = document.querySelector('#addManyInput').value
 
-    // Validate
-  if ( (!data && (!title || !brand)) || (!data && !title & !brand) ) {
-      UI.showAlert('Uzupełnij tytuł i markę LUB dodaj wiele', 'alert-danger')
+  // Validate
+  if ((!data && (!title || !brand)) || (!data && !title & !brand)) {
+    UI.showAlert('Uzupełnij tytuł i markę LUB dodaj wiele', 'alert-danger')
   } else if (manySwitch.checked && !!title && !!brand && !data) {
     // instatiate book
-    const book = new Book (title, brand)
+    const book = new Book(title, brand)
 
     // add book to UI
     UI.addBookToList(book)
@@ -258,8 +279,10 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
     // show success alert
     UI.showAlert('Wzornik został dodany', 'alert-success')
 
-    UI.clearFields(document.querySelector('#title'), document.querySelector('#brand'))
-
+    UI.clearFields(
+      document.querySelector('#title'),
+      document.querySelector('#brand')
+    )
   } else if (manySwitch.checked && !!data && !title && !brand) {
     // adding many books from list
     // get array of book objects from data
@@ -268,10 +291,10 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
     const lines = data.replace(/(?:\r\n|\r|\n)/g, '|').split('|')
 
     // two dimensional array
-    const array = lines.map( line => line.split('\t') )
+    const array = lines.map(line => line.split('\t'))
 
-    array.forEach((item) => {
-    // title and brand is being converted to object by instanciation
+    array.forEach(item => {
+      // title and brand is being converted to object by instanciation
       const book = new Book(item[1], item[0])
 
       Store.addBook(book)
@@ -280,10 +303,11 @@ document.querySelector('#book-form').addEventListener('submit', (e) => {
       UI.showAlert('Wzorniki zostały dodane', 'alert-success')
     })
   } else {
-    UI.showAlert('Możesz dodać tylko jeden wzornik LUB tylko wiele', 'alert-danger')
+    UI.showAlert(
+      'Możesz dodać tylko jeden wzornik LUB tylko wiele',
+      'alert-danger'
+    )
   }
-
-
 })
 
 // Event remove a book
@@ -293,15 +317,15 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
   UI.deleteBook(e.target)
 
   if (e.target.classList.contains('delete')) {
-  // remove book from LS
-  Store.removeBook(e.target.dataset.bookid)
+    // remove book from LS
+    Store.removeBook(e.target.dataset.bookid)
 
-  UI.showAlert('wzornik uzunięty z bazy', 'alert-success')
+    UI.showAlert('wzornik uzunięty z bazy', 'alert-success')
   }
 })
 
 // Event scaned a book
-document.querySelector('#id-scan').addEventListener('keyup', (e) => {
+document.querySelector('#id-scan').addEventListener('input', (e) => {
   // gonna need debounce link in underscorejs
   const scanValue = e.target.value
   if (scanValue) {
@@ -312,10 +336,8 @@ document.querySelector('#id-scan').addEventListener('keyup', (e) => {
   }
 })
 
-
 // lend a book
 document.querySelector('#book-list').addEventListener('click', (e) => {
-
   e.preventDefault()
 
   if (e.target.classList.contains('lend-btn')) {
@@ -331,11 +353,14 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 })
 
 // clear button for form
-document.querySelector('#book-form .link-clear').addEventListener('click', (e) => {
+document
+  .querySelector('#book-form .link-clear')
+  .addEventListener('click', (e) => {
+    e.preventDefault()
 
-  e.preventDefault()
-
-  Array.from(document.querySelectorAll('input, textarea'), field => field.value = '')
-  UI.displayBooks()
-
-})
+    Array.from(
+      document.querySelectorAll('input, textarea'),
+      field => (field.value = '')
+    )
+    UI.displayBooks()
+  })
