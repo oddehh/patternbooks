@@ -3,55 +3,35 @@ const manySwitch = document.querySelector('#addManySwitch')
 
 // Book Class: represents a book
 class Book {
-  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined) {
+  constructor(title, brand, isLend = false, timesLend = 0) {
     this.brand = brand
     this.dateCreated = new Date()
     this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
     this.title = title
     this.isLend = isLend
     this.timesLend = timesLend
-    this.dateLend = dateLend
-    this.whoLend = {}
-    this.hidstory = []
+    this.history = []
   }
 
   static lendToggle(bookId) {
     // get books
     const books = Store.getBooks()
-
     // find the book
     const filteredBook = books.find(book => book.id === bookId)
 
-    // get values
-    const whoLendName = document.querySelector('#fullname').value
-    const whoLendAgency = document.querySelector('#agency').value
-    const whoLendPhone = document.querySelector('#phone').value
-    const whoLendDeposit = document.querySelector('#deposit').value
-
     if (!filteredBook.isLend) {
-      filteredBook.whoLend.name = whoLendName
-      filteredBook.whoLend.agency = whoLendAgency
-      filteredBook.whoLend.phone = whoLendPhone
-      filteredBook.whoLend.deposit = whoLendDeposit
+      // get values
+      const clientName = document.querySelector('#fullname').value
+      const clientAgency = document.querySelector('#agency').value
+      const clientPhone = document.querySelector('#phone').value
+      const clientDeposit = document.querySelector('#deposit').value
 
+      const client = new Client(clientName, clientAgency, clientPhone, clientDeposit)
+
+      filteredBook.history.push(client)
       filteredBook.timesLend = filteredBook.timesLend + 1
-      filteredBook.dateLend = new Date()
     } else {
-      // create history entry
-      const historyEntry = new Object()
-
-      historyEntry.name = filteredBook.whoLend.name
-      historyEntry.agency = filteredBook.whoLend.agency
-      historyEntry.phone = filteredBook.whoLend.phone
-      historyEntry.deposit = filteredBook.whoLend.deposit
-      historyEntry.dateLend = filteredBook.dateLend
-      historyEntry.dateReturned = new Date()
-
-      // push to history
-      filteredBook.history.push(historyEntry)
-
-      // clear date lend
-      filteredBook.dateLend = ''
+      filteredBook.history[filteredBook.history.length - 1].dateReturned = new Date()
     }
 
     // toggle isLend
@@ -59,6 +39,18 @@ class Book {
     // save books
     localStorage.setItem('books', JSON.stringify(books))
     console.log(filteredBook)
+  }
+}
+
+class Client {
+  constructor(name, agency, phone, deposit) {
+
+  this.name = name
+  this.agency = agency
+  this.phone = phone
+  this.deposit = deposit
+  this.dateLend = new Date()
+  this.dateReturned = undefined
   }
 }
 
@@ -72,10 +64,12 @@ class UI {
 
   static addBookToList(book) {
     const list = document.querySelector('#book-list')
-
     const row = document.createElement('tr')
+
     row.classList.add('book-row')
     row.dataset.bookid = book.id
+
+    const bookLastHistoryEntry = book.history[history.length - 1]
 
     row.innerHTML = `
       <td>
@@ -83,32 +77,18 @@ class UI {
         <p>${book.brand}</p>
       </td>
       <td>
-        <p class="mb-0">${
-          book.isLend
-            ? UI.daysAgo(UI.dateDiff(book)) +
-              ' (' +
-              UI.dateHuman(new Date(book.dateLend)) +
-              ')'
-            : ''
-        }</p>
-        <p class="font-deposit-info">${
-          book.isLend && !!book.whoLend.deposit ? book.whoLend.deposit : ''
-        }</p>
+        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(bookLastHistoryEntry.dateLend)) +')': ''}</p>
+        <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.deposit ? bookLastHistoryEntry.deposit : ''}</p>
       </td>
       <td></td>
       <td></td>
-      <td><btn class="btn ${
-        book.isLend ? 'btn-success' : 'btn-primary'
-      } lend-btn btn-block" data-bookid="${book.id}">${
-      book.isLend ? 'Oddaj' : 'Wypożycz'
-    }</btn></td>
       <td>
-        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${
-          book.id
-        }" data-bookid="${book.id}">Edytuj</a>
-        <a class="delete small text-danger" href="#" data-bookid="${
-          book.id
-        }">Usuń</a>
+        <btn class="btn ${book.isLend ? 'btn-success' : 'btn-primary'} lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? 'Oddaj' : 'Wypożycz'}
+        </btn>
+      </td>
+      <td>
+        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${book.id}" data-bookid="${book.id}">Edytuj</a>
+        <a class="delete small text-danger" href="#" data-bookid="${book.id}">Usuń</a>
       </td>
     `
 
@@ -136,14 +116,8 @@ class UI {
   }
 
   static clearFields(...args) {
-    // OLD WAY, with no arguments
-    // if (!manySwitch.checked) {
-    //   document.getElementById('title').value = ''
-    //   document.getElementById('brand').value = ''
-    // } else {
-    //   document.getElementById('addManyInput').value = ''
-    // }
-    args.map(arg => (arg.value = ''))
+
+    args.map(input => (input.value = ''))
   }
 
   static filterToScanned(scanValue) {
@@ -154,7 +128,6 @@ class UI {
     const filteredBooks = books.filter(book =>
       book.id.includes(scanValue.replace(/\s+/gi, '').toLowerCase())
     )
-
     // clear list
     UI.clearList()
     // display filtered books
@@ -175,10 +148,10 @@ class UI {
   static dateDiff(book) {
     // date conversions from JSON.stringify
     const dateNow = new Date()
-    const dateLend = new Date(book.dateLend)
+    const dateLend = new Date(book.history[history.length -1].dateLend)
 
     const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
 
     return diffDays
   }
@@ -252,7 +225,6 @@ document.querySelector('#book-form').addEventListener('submit', e => {
 
   const title = document.querySelector('#title').value
   const brand = document.querySelector('#brand').value
-  const deposit = document.querySelector('#deposit').value
   const data = document.querySelector('#addManyInput').value
 
   // Validate
@@ -280,15 +252,15 @@ document.querySelector('#book-form').addEventListener('submit', e => {
     // get array of book objects from data
 
     // replace for different new lines (OS, win, linux)
-    const lines = data.replace(/(?:\r\n|\r|\n)/g, '|').split('|')
+    const lines = data.trim().replace(/(?:\r\n|\r|\n)/g, '|').split('|')
 
     // two dimensional array
-    const array = lines.map(line => line.split('\t'))
+    const array = lines.map(line => line.trim().split('\t'))
 
     array.forEach(item => {
       // title and brand is being converted to object by instanciation
       const book = new Book(item[1], item[0])
-
+      console.log(book)
       Store.addBook(book)
       UI.addBookToList(book)
       UI.clearFields(document.querySelector('#addManyInput'))
@@ -333,6 +305,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
   e.preventDefault()
 
   if (e.target.classList.contains('lend-btn')) {
+
     // toggle lend
     Book.lendToggle(e.target.dataset.bookid)
 
