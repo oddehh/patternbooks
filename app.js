@@ -3,15 +3,7 @@ const manySwitch = document.querySelector('#addManySwitch')
 
 // Book Class: represents a book
 class Book {
-  constructor(
-    title,
-    brand,
-    isLend = false,
-    timesLend = 0,
-    dateLend = undefined,
-    whoLend = {},
-    history = []
-  ) {
+  constructor(title, brand, isLend = false, timesLend = 0, dateLend = undefined) {
     this.brand = brand
     this.dateCreated = new Date()
     this.id = (title + brand).replace(/\s+/g, '').toLowerCase()
@@ -19,8 +11,8 @@ class Book {
     this.isLend = isLend
     this.timesLend = timesLend
     this.dateLend = dateLend
-    this.whoLend = whoLend
-    this.history = history
+    this.whoLend = {}
+    this.hidstory = []
   }
 
   static lendToggle(bookId) {
