@@ -83,11 +83,11 @@ class UI {
       <td></td>
       <td></td>
       <td>
-        <btn class="btn ${book.isLend ? 'btn-success' : 'btn-primary'} lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? 'Oddaj' : 'Wypożycz'}
-        </btn>
+        <button type="button" class="btn ${book.isLend ? 'btn-success' : 'btn-primary'} lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? 'Oddaj' : 'Wypożycz'}
+        </button>
       </td>
       <td>
-        <a class="edit-btn small text-primary" data-toggle="collapse" href="#details-${book.id}" data-bookid="${book.id}">Edytuj</a>
+        <a class="edit-btn small text-primary" href="#" data-toggle="modal" data-target="#edit-modal" data-bookid="${book.id}">Edytuj</a>
         <a class="delete small text-danger" href="#" data-bookid="${book.id}">Usuń</a>
       </td>
     `
@@ -108,9 +108,9 @@ class UI {
     div.appendChild(document.createTextNode(message))
     // get parent
     const container = document.querySelector('.container')
-    const form = document.getElementById('book-form')
+    const childNode = document.querySelector('.main')
     // insert alert
-    container.insertBefore(div, form)
+    container.insertBefore(div, childNode)
 
     setTimeout(() => document.querySelector('.alert').remove(), 3000)
   }
@@ -151,7 +151,7 @@ class UI {
     const dateLend = new Date(book.history[history.length -1].dateLend)
 
     const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
     return diffDays
   }
@@ -277,14 +277,45 @@ document.querySelector('#book-form').addEventListener('submit', e => {
 // Event remove a book
 document.querySelector('#book-list').addEventListener('click', (e) => {
   e.preventDefault()
-  // remove book from UI
-  UI.deleteBook(e.target)
 
   if (e.target.classList.contains('delete')) {
+    // remove book from UI
+    UI.deleteBook(e.target)
     // remove book from LS
     Store.removeBook(e.target.dataset.bookid)
 
     UI.showAlert('wzornik uzunięty z bazy', 'alert-success')
+  }
+
+  //  Event EDIT book
+  if (e.target.classList.contains('edit-btn')) {
+
+    const bookId = e.target.dataset.bookid
+
+    // get book
+    const books = Store.getBooks()
+    const book = books.find(book => book.id === bookId)
+
+    const lastEntry = book.history[history.length -1]
+
+    // populate inputs with data from book object
+    const editTitle = document.querySelector('#edit-title')
+    const editBrand = document.querySelector('#edit-brand')
+    const editName = document.querySelector('#edit-name')
+    const editAgency = document.querySelector('#edit-agency')
+    const editPhone = document.querySelector('#edit-phone')
+    const editDeposit = document.querySelector('#edit-deposit')
+
+    editTitle.value = book.title
+    editBrand.value = book.brand
+    editName.value = lastEntry.name
+    editAgency.value = lastEntry.agency
+    editPhone.value = lastEntry.phone
+    editDeposit.value = lastEntry.deposit
+
+    // save new data
+
+    // close window
   }
 })
 
@@ -318,9 +349,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 })
 
 // clear button for form
-document
-  .querySelector('#book-form .link-clear')
-  .addEventListener('click', (e) => {
+document.querySelector('#book-form .link-clear').addEventListener('click', (e) => {
     e.preventDefault()
 
     Array.from(
@@ -330,3 +359,4 @@ document
     UI.clearList()
     UI.displayBooks()
   })
+

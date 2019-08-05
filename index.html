@@ -22,91 +22,149 @@
     </div>
   </div> -->
 
+  <!-- Modal -->
+  <div class="modal fade" id="edit-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edit-modal-title">Modyfikujesz</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-form">
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-title">Nazwa wzornika:</label>
+              <div class="col-8">
+                <input  class="form-control" type="text" id="edit-title" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-brand">Marka wzornika:</label>
+              <div class="col-8">
+                <input  class="form-control" type="text" id="edit-brand" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-name">Imię i nazwisko:</label>
+              <div class="col-8">
+              	<input class="form-control" type="text" id="edit-name" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-agency">Agencja:</label>
+              <div class="col-8">
+                <input class="form-control" type="text" id="edit-agency" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-phone">Telefon:</label>
+              <div class="col-8">
+                <input class="form-control" type="text" id="edit-phone" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-4 col-form-label" for="edit-deposit">Kaucja:</label>
+              <div class="col-8">
+                <input class="form-control" type="text" id="edit-deposit" value="">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Powrót</button>
+          <button dtype="button" class="btn btn-primary">Zapisz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container mt-5">
-
-    <form id="book-form">
-      <!-- scanning -->
-      <div class="form-group">
-        <label for="id-scan">Zeskanuj</label>
-        <input type="text" id="id-scan" class="form-control form-control-lg" placeholder="">
-      </div>
-
-
-      <!-- lending books -->
-      <div class="form-row contact">
-        <div class="col-md-4 form-group">
-          <label for="firstName">Kto wypożycza</label>
-          <input type="text" id="fullname" class="form-control" placeholder="Imię i nazwisko">
+    <div class="col-md-12 main">
+      <form id="book-form">
+        <!-- scanning -->
+        <div class="form-group">
+          <label for="id-scan">Zeskanuj</label>
+          <input type="text" id="id-scan" class="form-control form-control-lg" placeholder="">
         </div>
-        <div class="col form-group">
-          <label for="agency">Biuro projektowe</label>
-          <input type="text" id="agency" class="form-control" placeholder="Nazwa biura">
-        </div>
-        <div class="col form-group">
-          <label for="phone">Telefon</label>
-          <input type="tel" id="phone" class="form-control" placeholder="" pattern="[0-9]{9}">
-        </div>
-        <div class="col-md-2 form-group">
-          <label for="deposit">Kaucja</label>
-          <input type="text" id="deposit" class="form-control" placeholder pattern>
-        </div>
-      </div>
 
-      <!-- clear button -->
-      <div class="form-group">
-        <a class="btn btn-outline-secondary btn-sm link-clear" >Wyczyść pola</a>
-      </div>
 
-      <!-- switch -->
-      <div class="custom-control custom-switch mt-2 mb-4 d-flex justify-content-end">
-        <input type="checkbox" data-toggle="collapse" data-target="#addBooks" class="custom-control-input" id="addManySwitch">
-        <label class="custom-control-label" for="addManySwitch">Dodaj</label>
-      </div>
-
-      <!-- adding books -->
-      <div class="collapse" id="addBooks">
-
-        <div class="form-row">
-          <div class="col-md-6">
-            <div class="col form-group">
-              <label for="title">Tytuł</label>
-              <input type="text" id="title" class="form-control" placeholder="np. Fornasetti II">
-            </div>
-            <div class="col form-group">
-              <label for="brand">Marka</label>
-              <input type="text" id="brand" class="form-control" placeholder="np. Cole & Son">
-            </div>
+        <!-- lending books -->
+        <div class="form-row contact">
+          <div class="col-md-4 form-group">
+            <label for="firstName">Kto wypożycza</label>
+            <input type="text" id="fullname" class="form-control" placeholder="Imię i nazwisko">
           </div>
-          <div class="col-md-6">
-            <div  class="form-group" id="addManyArea">
-              <label for="addManyInput">Dodaj wiele</label>
-              <textarea rows="4" class="form form-control" placeholder="Cole & Son	(tab!!)Fornasetti" id="addManyInput"></textarea>
-            </div>
+          <div class="col form-group">
+            <label for="agency">Biuro projektowe</label>
+            <input type="text" id="agency" class="form-control" placeholder="Nazwa biura">
+          </div>
+          <div class="col form-group">
+            <label for="phone">Telefon</label>
+            <input type="tel" id="phone" class="form-control" placeholder="" pattern="[0-9]{9}">
+          </div>
+          <div class="col-md-2 form-group">
+            <label for="deposit">Kaucja</label>
+            <input type="text" id="deposit" class="form-control" placeholder pattern>
           </div>
         </div>
 
-
-        <div class="form-group mt-5">
-          <button class="btn btn-primary btn-block btn-lg" type="submit">Dodaj</button>
+        <!-- clear button -->
+        <div class="form-group">
+          <a class="btn btn-outline-secondary btn-sm link-clear" >Wyczyść pola</a>
         </div>
-      </div>
-    </form>
+
+        <!-- switch -->
+        <div class="custom-control custom-switch mt-2 mb-4 d-flex justify-content-end">
+          <input type="checkbox" data-toggle="collapse" data-target="#addBooks" class="custom-control-input" id="addManySwitch">
+          <label class="custom-control-label" for="addManySwitch">Dodaj</label>
+        </div>
+
+        <!-- adding books -->
+        <div class="collapse" id="addBooks">
+
+          <div class="form-row">
+            <div class="col-md-6">
+              <div class="col form-group">
+                <label for="title">Tytuł</label>
+                <input type="text" id="title" class="form-control" placeholder="np. Fornasetti II">
+              </div>
+              <div class="col form-group">
+                <label for="brand">Marka</label>
+                <input type="text" id="brand" class="form-control" placeholder="np. Cole & Son">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div  class="form-group" id="addManyArea">
+                <label for="addManyInput">Dodaj wiele</label>
+                <textarea rows="4" class="form form-control" placeholder="Cole & Son	(tab!!)Fornasetti" id="addManyInput"></textarea>
+              </div>
+            </div>
+          </div>
 
 
-    <p>wszystkie:</p>
-    <table class="table mt-5">
-      <thead>
-        <th>Nazwa</th>
-        <th>Wypożyczono</th>
-        <th></th>
-        <th>Depozyt</th>
-        <th>?</th>
-        <th>?</th>
-      </thead>
-      <tbody id="book-list">
-      </tbody>
-    </table>
+          <div class="form-group mt-5">
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Dodaj</button>
+          </div>
+        </div>
+      </form>
 
+
+      <p>wszystkie:</p>
+      <table class="table mt-5">
+        <thead>
+          <th>Nazwa</th>
+          <th>Wypożyczono</th>
+          <th></th>
+          <th>Depozyt</th>
+          <th>?</th>
+          <th>?</th>
+        </thead>
+        <tbody id="book-list">
+        </tbody>
+      </table>
+    </div>
   </div> <!-- end of container -->
 
 
