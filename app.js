@@ -296,7 +296,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     const books = Store.getBooks()
     const book = books.find(book => book.id === bookId)
 
-    const lastEntry = book.history[history.length -1]
+    const lastEntry = book.history[book.history.length -1]
 
     // populate inputs with data from book object
     const editTitle = document.querySelector('#edit-title')
@@ -313,8 +313,13 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     editPhone.value = lastEntry.phone
     editDeposit.value = lastEntry.deposit
 
-    // save new data
 
+
+    // save new data
+    document.querySelector('#edit-save').addEventListener('click', (e) => {
+      e.preventDefault()
+
+    })
     // close window
   }
 })
