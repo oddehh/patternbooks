@@ -20,16 +20,24 @@ class Book {
     const filteredBook = books.find(book => book.id === bookId)
 
     if (!filteredBook.isLend) {
-      // get values
-      const clientName = document.querySelector('#fullname').value
-      const clientAgency = document.querySelector('#agency').value
-      const clientPhone = document.querySelector('#phone').value
-      const clientDeposit = document.querySelector('#deposit').value
+      // get selectors
+      const clientName = document.querySelector('#fullname')
+      const clientAgency = document.querySelector('#agency')
+      const clientPhone = document.querySelector('#phone')
+      const clientDeposit = document.querySelector('#deposit')
 
-      const client = new Client(clientName, clientAgency, clientPhone, clientDeposit)
+      if (!clientName.value) {
+        UI.showAlert(`Wpisz kto wypożycza`, 'alert-danger')
+        return false
+
+      } else {
+
+      const client = new Client(clientName.value, clientAgency.value, clientPhone.value, clientDeposit.value)
 
       filteredBook.history.push(client)
       filteredBook.timesLend = filteredBook.timesLend + 1
+      }
+
     } else {
       filteredBook.history[filteredBook.history.length - 1].dateReturned = new Date()
     }
@@ -38,7 +46,8 @@ class Book {
     filteredBook.isLend = !filteredBook.isLend
     // save books
     localStorage.setItem('books', JSON.stringify(books))
-    console.log(filteredBook)
+
+    return true
   }
 }
 
@@ -69,7 +78,7 @@ class UI {
     row.classList.add('book-row')
     row.dataset.bookid = book.id
 
-    const bookLastHistoryEntry = book.history[history.length - 1]
+    const bookLastHistoryEntry = book.history.length > 0 ? book.history[book.history.length - 1] : ''
 
     row.innerHTML = `
       <td>
@@ -80,7 +89,10 @@ class UI {
         <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(bookLastHistoryEntry.dateLend)) +')': ''}</p>
         <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.deposit ? bookLastHistoryEntry.deposit : ''}</p>
       </td>
-      <td></td>
+      <td>
+        <p class="mb-0">${book.isLend ? bookLastHistoryEntry.name : ''}</p>
+        <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.phone ? bookLastHistoryEntry.phone : ''}</p>
+      </td>
       <td></td>
       <td>
         <button type="button" class="btn ${book.isLend ? 'btn-success' : 'btn-primary'} lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? 'Oddaj' : 'Wypożycz'}
@@ -148,7 +160,7 @@ class UI {
   static dateDiff(book) {
     // date conversions from JSON.stringify
     const dateNow = new Date()
-    const dateLend = new Date(book.history[history.length -1].dateLend)
+    const dateLend = new Date(book.history[book.history.length -1].dateLend)
 
     const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -214,6 +226,10 @@ class Store {
     })
     localStorage.setItem('books', JSON.stringify(books))
   }
+
+  static updateBook(editedBook) {
+
+  }
 }
 
 // Event: Display Books
@@ -223,16 +239,16 @@ document.addEventListener('DOMContentLoaded', UI.displayBooks)
 document.querySelector('#book-form').addEventListener('submit', e => {
   e.preventDefault()
 
-  const title = document.querySelector('#title').value
-  const brand = document.querySelector('#brand').value
-  const data = document.querySelector('#addManyInput').value
+  const title = document.querySelector('#title')
+  const brand = document.querySelector('#brand')
+  const data = document.querySelector('#addManyInput')
 
   // Validate
-  if ((!data && (!title || !brand)) || (!data && !title & !brand)) {
+  if ((!data.value && (!title.value || !brand.value)) || (!data.value && !title.value & !brand.value)) {
     UI.showAlert('Uzupełnij tytuł i markę LUB dodaj wiele', 'alert-danger')
-  } else if (manySwitch.checked && !!title && !!brand && !data) {
+  } else if (manySwitch.checked && !!title.value && !!brand.value && !data.value) {
     // instatiate book
-    const book = new Book(title, brand)
+    const book = new Book(title.value, brand.value)
 
     // add book to UI
     UI.addBookToList(book)
@@ -247,12 +263,12 @@ document.querySelector('#book-form').addEventListener('submit', e => {
       document.querySelector('#title'),
       document.querySelector('#brand')
     )
-  } else if (manySwitch.checked && !!data && !title && !brand) {
+  } else if (manySwitch.checked && !!data.value && !title.value && !brand.value) {
     // adding many books from list
     // get array of book objects from data
 
     // replace for different new lines (OS, win, linux)
-    const lines = data.trim().replace(/(?:\r\n|\r|\n)/g, '|').split('|')
+    const lines = data.value.trim().replace(/(?:\r\n|\r|\n)/g, '|').split('|')
 
     // two dimensional array
     const array = lines.map(line => line.trim().split('\t'))
@@ -260,7 +276,7 @@ document.querySelector('#book-form').addEventListener('submit', e => {
     array.forEach(item => {
       // title and brand is being converted to object by instanciation
       const book = new Book(item[1], item[0])
-      console.log(book)
+
       Store.addBook(book)
       UI.addBookToList(book)
       UI.clearFields(document.querySelector('#addManyInput'))
@@ -298,7 +314,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 
     const lastEntry = book.history[book.history.length -1]
 
-    // populate inputs with data from book object
+    // get selectors
     const editTitle = document.querySelector('#edit-title')
     const editBrand = document.querySelector('#edit-brand')
     const editName = document.querySelector('#edit-name')
@@ -306,20 +322,43 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     const editPhone = document.querySelector('#edit-phone')
     const editDeposit = document.querySelector('#edit-deposit')
 
+    // populate inputs with data from book object
     editTitle.value = book.title
     editBrand.value = book.brand
-    editName.value = lastEntry.name
-    editAgency.value = lastEntry.agency
-    editPhone.value = lastEntry.phone
-    editDeposit.value = lastEntry.deposit
+
+    if (book.isLend === false || book.history.length === 0) {
+      editName.value = ''
+      editAgency.value = ''
+      editPhone.value = ''
+      editDeposit.value =''
+    } else if (book.history.length > 0) {
+      editName.value = lastEntry.name
+      editAgency.value = lastEntry.agency
+      editPhone.value = lastEntry.phone
+      editDeposit.value = lastEntry.deposit
+    }
 
 
+    // // save new data from modal edit
+    // document.querySelector('#edit-save').addEventListener('click', (e) => {
 
-    // save new data
-    document.querySelector('#edit-save').addEventListener('click', (e) => {
-      e.preventDefault()
+    //   const editedBook = {
+    //     id: book.id,
+    //     title: editTitle.value,
+    //     brand: editBrand.value,
+    //     name: editName.value,
+    //     agency: editAgency.value,
+    //     phone: editPhone.value,
+    //     deposit: editDeposit.value
+    //   }
 
-    })
+    //   Store.updateBook(editedBook)
+
+    //   console.log(editedBook)
+
+    //   e.preventDefault()
+    // })
+
     // close window
   }
 })
@@ -343,13 +382,16 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
   if (e.target.classList.contains('lend-btn')) {
 
     // toggle lend
-    Book.lendToggle(e.target.dataset.bookid)
+    const isBookToggled = Book.lendToggle(e.target.dataset.bookid)
 
     // display filtered books
-    const scanValue = document.querySelector('#id-scan').value
-    UI.filterToScanned(scanValue)
+    const scan = document.querySelector('#id-scan')
+    UI.filterToScanned(scan.value)
 
-    UI.showAlert('Wzornik został wypożyczony / oddany', 'alert-success')
+    if (isBookToggled) {
+      UI.showAlert('Wzornik został wypożyczony / oddany', 'alert-success')
+    }
+
   }
 })
 
