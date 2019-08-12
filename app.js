@@ -290,10 +290,10 @@ document.querySelector('#book-form').addEventListener('submit', e => {
   }
 })
 
-// Event remove a book
 document.querySelector('#book-list').addEventListener('click', (e) => {
   e.preventDefault()
 
+  // Event REMOVE a book
   if (e.target.classList.contains('delete')) {
     // remove book from UI
     UI.deleteBook(e.target)
@@ -315,6 +315,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     const lastEntry = book.history[book.history.length -1]
 
     // get selectors
+    const editId = document.querySelector('#edit-id')
     const editTitle = document.querySelector('#edit-title')
     const editBrand = document.querySelector('#edit-brand')
     const editName = document.querySelector('#edit-name')
@@ -322,15 +323,19 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     const editPhone = document.querySelector('#edit-phone')
     const editDeposit = document.querySelector('#edit-deposit')
 
+    editId.value = book.id
+
     // populate inputs with data from book object
     editTitle.value = book.title
     editBrand.value = book.brand
 
+    // setting values for inputs based on history
     if (book.isLend === false || book.history.length === 0) {
       editName.value = ''
       editAgency.value = ''
       editPhone.value = ''
       editDeposit.value =''
+
     } else if (book.history.length > 0) {
       editName.value = lastEntry.name
       editAgency.value = lastEntry.agency
@@ -338,30 +343,54 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
       editDeposit.value = lastEntry.deposit
     }
 
+    // enabling edit based on lend
+    if (!book.isLend) {
+      editName.disabled = true
+      editAgency.disabled = true
+      editPhone.disabled = true
+      editDeposit.disabled = true
+    } else {
+      editName.disabled = false
+      editAgency.disabled = false
+      editPhone.disabled = false
+      editDeposit.disabled = false
+    }
 
-    // // save new data from modal edit
-    // document.querySelector('#edit-save').addEventListener('click', (e) => {
-
-    //   const editedBook = {
-    //     id: book.id,
-    //     title: editTitle.value,
-    //     brand: editBrand.value,
-    //     name: editName.value,
-    //     agency: editAgency.value,
-    //     phone: editPhone.value,
-    //     deposit: editDeposit.value
-    //   }
-
-    //   Store.updateBook(editedBook)
-
-    //   console.log(editedBook)
-
-    //   e.preventDefault()
-    // })
-
-    // close window
   }
+
 })
+
+// save new data from modal edit
+document.querySelector('#edit-save').addEventListener('click', (e) => {
+
+  // get book
+
+  // get values to change
+
+  // update values in book
+  // clear fileds
+  // close modal
+
+  // const editedBook = {
+  //   id: book.id,
+  //   title: editTitle.value,
+  //   brand: editBrand.value,
+  //   name: editName.value,
+  //   agency: editAgency.value,
+  //   phone: editPhone.value,
+  //   deposit: editDeposit.value
+  // }
+
+  // Store.updateBook(editedBook)
+
+  console.log()
+
+  e.preventDefault()
+  // close window
+})
+
+
+
 
 // Event scaned a book
 document.querySelector('#id-scan').addEventListener('input', (e) => {
