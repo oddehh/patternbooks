@@ -227,8 +227,10 @@ class Store {
     localStorage.setItem('books', JSON.stringify(books))
   }
 
-  static updateBook(editedBook) {
-
+  static updateBook(book, index) {
+    const books = Store.getBooks()
+    books.splice(index, 1, book)
+    localStorage.setItem('books', JSON.stringify(books))
   }
 }
 
@@ -364,26 +366,60 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 document.querySelector('#edit-save').addEventListener('click', (e) => {
 
   // get book
+  const editBookId = document.querySelector('#edit-id').value
+  const books = Store.getBooks()
+  const book = books.find(book => book.id === editBookId)
+  const index = books.findIndex(entry => entry.id === book.id)
+
+  let isEdited = false
 
   // get values to change
+  const editTitle = document.querySelector('#edit-title')
+  const editBrand = document.querySelector('#edit-brand')
+  const editName = document.querySelector('#edit-name')
+  const editAgency = document.querySelector('#edit-agency')
+  const editPhone = document.querySelector('#edit-phone')
+  const editDeposit = document.querySelector('#edit-deposit')
 
   // update values in book
-  // clear fileds
-  // close modal
+  // book.title = editTitle
+  // book.brand = editBrand
 
-  // const editedBook = {
-  //   id: book.id,
-  //   title: editTitle.value,
-  //   brand: editBrand.value,
-  //   name: editName.value,
-  //   agency: editAgency.value,
-  //   phone: editPhone.value,
-  //   deposit: editDeposit.value
-  // }
+  // book.history[book.history.length - 1].name = editName
+  // book.history[book.history.length - 1].agency = editAgency
+  // book.history[book.history.length - 1].phone = editPhone
+  // book.history[book.history.length - 1].deposit = editDeposit
 
-  // Store.updateBook(editedBook)
 
-  console.log()
+  function updateBookValues(oldValue, editValue ) {
+    const newValue = editValue.trim()
+
+    if(oldValue !== newValue) {
+      console.log(oldValue, newValue)
+      oldValue = newValue
+      book.history[book.history.length - 1].edited = true
+      isEdited = true
+    }
+
+  }
+
+  updateBookValues(book.title, editTitle.value)
+  updateBookValues(book.brand, editBrand.value)
+  updateBookValues(book.history[book.history.length - 1].name, editName.value)
+  updateBookValues(book.history[book.history.length - 1].agency, editAgency.value)
+  updateBookValues(book.history[book.history.length - 1].phone, editPhone.value)
+  updateBookValues(book.history[book.history.length - 1].deposit, editDeposit.value)
+
+  if (isEdited) {
+    Store.updateBook(book,index)
+  }
+
+  console.log(isEdited, book)
+  console.log(books)
+
+
+  // show edited values on the list
+
 
   e.preventDefault()
   // close window
