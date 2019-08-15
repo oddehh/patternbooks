@@ -365,6 +365,10 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 // save new data from modal edit
 document.querySelector('#edit-save').addEventListener('click', (e) => {
 
+  // Check if changes made
+  // Save if changes mage
+  // Display new list if changes made
+
   // get book
   const editBookId = document.querySelector('#edit-id').value
   const books = Store.getBooks()

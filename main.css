@@ -34,3 +34,88 @@ p {
 .font-deposit-info {
     font-weight: 500;
 }
+
+.btn {
+    -webkit-box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+}
+
+.link-clear {
+    color: #7795f8;
+}
+
+.link-clear.btn.btn-outline-secondary:hover {
+    color: #fff;
+}
+
+.btn-success {
+    color: #fff;
+    background-color: #3ecf8e;
+    border-color: #3ecf8e;
+}
+
+
+/* stripe buttons */
+.common-Button {
+    white-space: nowrap;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 14px;
+    -webkit-box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    background: #fff;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .025em;
+    color: #6772e5;
+    text-decoration: none;
+    -webkit-transition: all .15s ease;
+    transition: all .15s ease;
+}
+
+.common-ButtonGroup .common-Button {
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    margin: 10px;
+}
+
+.common-Button--default, .btn-primary {
+    color: #fff;
+    background: #6772e5;
+    border-color: #6772e5;
+}
+
+.common-Button:focus, .common-Button:hover {
+    color: #7795f8;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    -webkit-box-shadow: 0 13px 27px -5px rgba(50,50,93,.25), 0 8px 16px -8px rgba(0,0,0,.3), 0 -6px 16px -6px rgba(0,0,0,.025);
+    box-shadow: 0 13px 27px -5px rgba(50,50,93,.25), 0 8px 16px -8px rgba(0,0,0,.3), 0 -6px 16px -6px rgba(0,0,0,.025);
+    -webkit-box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+    box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+}
+
+.common-Button--default:focus, .common-Button--default:hover {
+    color: #fff;
+    background-color: #7795f8;
+}
+
+.common-Button:active {
+    color: #555abf;
+    background-color: #f6f9fc;
+    -webkit-transform: translateY(1px);
+    transform: translateY(1px);
+    -webkit-box-shadow: 0 6px 12px -2px rgba(50,50,93,.25),0 3px 7px -3px rgba(0,0,0,.3);
+    box-shadow: 0 6px 12px -2px rgba(50,50,93,.25),0 3px 7px -3px rgba(0,0,0,.3)
+}
+
+body {
+    background: #f6f9fc;
+}
+
+.form-group {
+    color: #6772e5;
+}
