@@ -32,10 +32,10 @@ class Book {
 
       } else {
 
-      const client = new Client(clientName.value, clientAgency.value, clientPhone.value, clientDeposit.value)
+        const client = new Client(clientName.value, clientAgency.value, clientPhone.value, clientDeposit.value)
 
-      filteredBook.history.push(client)
-      filteredBook.timesLend = filteredBook.timesLend + 1
+        filteredBook.history.push(client)
+        filteredBook.timesLend = filteredBook.timesLend + 1
       }
 
     } else {
@@ -54,12 +54,12 @@ class Book {
 class Client {
   constructor(name, agency, phone, deposit) {
 
-  this.name = name
-  this.agency = agency
-  this.phone = phone
-  this.deposit = deposit
-  this.dateLend = new Date()
-  this.dateReturned = undefined
+    this.name = name
+    this.agency = agency
+    this.phone = phone
+    this.deposit = deposit
+    this.dateLend = new Date()
+    this.dateReturned = undefined
   }
 }
 
@@ -86,7 +86,7 @@ class UI {
         <p>${book.brand}</p>
       </td>
       <td>
-        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(bookLastHistoryEntry.dateLend)) +')': ''}</p>
+        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(bookLastHistoryEntry.dateLend)) + ')' : ''}</p>
         <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.deposit ? bookLastHistoryEntry.deposit : ''}</p>
       </td>
       <td>
@@ -160,7 +160,7 @@ class UI {
   static dateDiff(book) {
     // date conversions from JSON.stringify
     const dateNow = new Date()
-    const dateLend = new Date(book.history[book.history.length -1].dateLend)
+    const dateLend = new Date(book.history[book.history.length - 1].dateLend)
 
     const diffTime = Math.abs(dateLend.getTime() - dateNow.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -314,7 +314,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     const books = Store.getBooks()
     const book = books.find(book => book.id === bookId)
 
-    const lastEntry = book.history[book.history.length -1]
+    const lastEntry = book.history[book.history.length - 1]
 
     // get selectors
     const editId = document.querySelector('#edit-id')
@@ -336,7 +336,7 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
       editName.value = ''
       editAgency.value = ''
       editPhone.value = ''
-      editDeposit.value =''
+      editDeposit.value = ''
 
     } else if (book.history.length > 0) {
       editName.value = lastEntry.name
@@ -364,6 +364,10 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 
 // save new data from modal edit
 document.querySelector('#edit-save').addEventListener('click', (e) => {
+
+  // Check if changes made
+  // Save if changes mage
+  // Display new list if changes made
 
   // get book
   const editBookId = document.querySelector('#edit-id').value
@@ -448,13 +452,12 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 
 // clear button for form
 document.querySelector('#book-form .link-clear').addEventListener('click', (e) => {
-    e.preventDefault()
+  e.preventDefault()
 
-    Array.from(
-      document.querySelectorAll('input, textarea'),
-      field => (field.value = '')
-    )
-    UI.clearList()
-    UI.displayBooks()
-  })
-
+  Array.from(
+    document.querySelectorAll('input, textarea'),
+    field => (field.value = '')
+  )
+  UI.clearList()
+  UI.displayBooks()
+})
