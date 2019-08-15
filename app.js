@@ -369,17 +369,18 @@ document.querySelector('#edit-save').addEventListener('click', (e) => {
   const editBookId = document.querySelector('#edit-id').value
   const books = Store.getBooks()
   const book = books.find(book => book.id === editBookId)
+
   const index = books.findIndex(entry => entry.id === book.id)
 
   let isEdited = false
 
   // get values to change
-  const editTitle = document.querySelector('#edit-title')
-  const editBrand = document.querySelector('#edit-brand')
-  const editName = document.querySelector('#edit-name')
-  const editAgency = document.querySelector('#edit-agency')
-  const editPhone = document.querySelector('#edit-phone')
-  const editDeposit = document.querySelector('#edit-deposit')
+  const editTitle = document.querySelector('#edit-title').value
+  const editBrand = document.querySelector('#edit-brand').value
+  const editName = document.querySelector('#edit-name').value
+  const editAgency = document.querySelector('#edit-agency').value
+  const editPhone = document.querySelector('#edit-phone').value
+  const editDeposit = document.querySelector('#edit-deposit').value
 
   // update values in book
   // book.title = editTitle
@@ -388,31 +389,16 @@ document.querySelector('#edit-save').addEventListener('click', (e) => {
   // book.history[book.history.length - 1].name = editName
   // book.history[book.history.length - 1].agency = editAgency
   // book.history[book.history.length - 1].phone = editPhone
-  // book.history[book.history.length - 1].deposit = editDeposit
+  book.history[book.history.length - 1].deposit = editDeposit
 
 
-  function updateBookValues(oldValue, editValue ) {
-    const newValue = editValue.trim()
+  //     book.history[book.history.length - 1].edited = true
+  //     isEdited = true
 
-    if(oldValue !== newValue) {
-      console.log(oldValue, newValue)
-      oldValue = newValue
-      book.history[book.history.length - 1].edited = true
-      isEdited = true
-    }
-
-  }
-
-  updateBookValues(book.title, editTitle.value)
-  updateBookValues(book.brand, editBrand.value)
-  updateBookValues(book.history[book.history.length - 1].name, editName.value)
-  updateBookValues(book.history[book.history.length - 1].agency, editAgency.value)
-  updateBookValues(book.history[book.history.length - 1].phone, editPhone.value)
-  updateBookValues(book.history[book.history.length - 1].deposit, editDeposit.value)
-
-  if (isEdited) {
-    Store.updateBook(book,index)
-  }
+  // if (isEdited) {
+  //   Store.updateBook(book,index)
+  // }
+  Store.updateBook(book, index)
 
   console.log(isEdited, book)
   console.log(books)
