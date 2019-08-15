@@ -67,11 +67,15 @@ class Client {
 class UI {
   static displayBooks() {
     const books = Store.getBooks()
-
     books.forEach(book => UI.addBookToList(book))
   }
 
   static addBookToList(book) {
+
+    if(!book) {
+      return false
+    }
+
     const list = document.querySelector('#book-list')
     const row = document.createElement('tr')
 
@@ -114,6 +118,126 @@ class UI {
     }
   }
 
+  static editBook(id) {
+    // get book
+    const books = Store.getBooks()
+    const book = books.find(book => book.id === id)
+    // get last entry
+    const lastEntry = book.history[book.history.length - 1]
+    // get selectors
+    const editId = document.querySelector('#edit-id')
+    const editTitle = document.querySelector('#edit-title')
+    const editBrand = document.querySelector('#edit-brand')
+    const editName = document.querySelector('#edit-name')
+    const editAgency = document.querySelector('#edit-agency')
+    const editPhone = document.querySelector('#edit-phone')
+    const editDeposit = document.querySelector('#edit-deposit')
+
+    // populate inputs with data from book object
+    editId.value = book.id
+    editTitle.defaultValue = book.title
+    editBrand.defaultValue = book.brand
+
+    // setting values for inputs based on history
+    if (book.isLend === false || book.history.length === 0) {
+      editName.value = ''
+      editAgency.value = ''
+      editPhone.value = ''
+      editDeposit.value = ''
+
+    } else if (book.history.length > 0) {
+      editName.defaultValue = lastEntry.name
+      editAgency.defaultValue = lastEntry.agency
+      editPhone.defaultValue = lastEntry.phone
+      editDeposit.defaultValue = lastEntry.deposit
+    }
+    // enabling edit based on lend
+    if (!book.isLend) {
+      editName.disabled = true
+      editAgency.disabled = true
+      editPhone.disabled = true
+      editDeposit.disabled = true
+    } else {
+      editName.disabled = false
+      editAgency.disabled = false
+      editPhone.disabled = false
+      editDeposit.disabled = false
+    }
+  }
+
+  static isBookEdited(book) {
+    const editInputsArray = Array.from(document.querySelectorAll('#edit-modal input'), input => input.defaultValue !== input.value)
+    if (editInputsArray.includes(true)) {
+      book.edited = true
+      return true
+    } else {
+      return false
+    }
+  }
+
+  static updateBook(book) {
+    // get values to change
+    const editTitle = document.querySelector('#edit-title').value.trim()
+    const editBrand = document.querySelector('#edit-brand').value.trim()
+    const editName = document.querySelector('#edit-name').value.trim()
+    const editAgency = document.querySelector('#edit-agency').value.trim()
+    const editPhone = document.querySelector('#edit-phone').value.trim()
+    const editDeposit = document.querySelector('#edit-deposit').value.trim()
+
+    // update values in book
+    book.title = editTitle
+    book.brand = editBrand
+    // SHOULD WE RE-GENERATE ID?
+    // book.id = (editTitle + editBrand).replace(/\s+/g, '').toLowerCase()
+
+
+    // there SHOULD be check if the value has changed
+    if(book.history.length > 0) {
+      book.history[book.history.length - 1].name = editName
+      book.history[book.history.length - 1].agency = editAgency
+      book.history[book.history.length - 1].phone = editPhone
+      book.history[book.history.length - 1].deposit = editDeposit
+    }
+
+    return book
+  }
+
+  static updateList(book) {
+    const rows = Array.from(document.querySelectorAll('tr.book-row'))
+    const row = rows.find(row => row.dataset.bookid === book.id)
+
+    const bookLastHistoryEntry = book.history.length > 0 ? book.history[book.history.length - 1] : ''
+
+    row.innerHTML = `
+      <td>
+        <h4>${book.title}</h4>
+        <p>${book.brand}</p>
+      </td>
+      <td>
+        <p class="mb-0">${ book.isLend ? UI.daysAgo(UI.dateDiff(book)) + ' (' + UI.dateHuman(new Date(bookLastHistoryEntry.dateLend)) + ')' : ''}</p>
+        <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.deposit ? bookLastHistoryEntry.deposit : ''}</p>
+      </td>
+      <td>
+        <p class="mb-0">${book.isLend ? bookLastHistoryEntry.name : ''}</p>
+        <p class="font-deposit-info">${book.isLend && !!bookLastHistoryEntry.phone ? bookLastHistoryEntry.phone : ''}</p>
+      </td>
+      <td></td>
+      <td>
+        <button type="button" class="btn ${book.isLend ? 'btn-success' : 'btn-primary'} lend-btn btn-block" data-bookid="${book.id}">${book.isLend ? 'Oddaj' : 'Wypożycz'}
+        </button>
+      </td>
+      <td>
+        <a class="edit-btn small text-primary" href="#" data-toggle="modal" data-target="#edit-modal" data-bookid="${book.id}">Edytuj</a>
+        <a class="delete small text-danger" href="#" data-bookid="${book.id}">Usuń</a>
+      </td>
+    `
+  }
+
+  static hideModal() {
+    // TO DO: propose pure JS alternative
+    $('#edit-modal').modal('hide')
+  }
+
   static showAlert(message, className) {
     const div = document.createElement('div')
     div.className = `alert ${className}`
@@ -128,7 +252,6 @@ class UI {
   }
 
   static clearFields(...args) {
-
     args.map(input => (input.value = ''))
   }
 
@@ -143,9 +266,7 @@ class UI {
     // clear list
     UI.clearList()
     // display filtered books
-    filteredBooks.forEach(book => {
-      UI.addBookToList(book)
-    })
+    filteredBooks.forEach(book => UI.addBookToList(book))
   }
 
   static dateHuman(date) {
@@ -204,7 +325,7 @@ class Store {
   static displayBooks() {
     const books = Store.getBooks()
 
-    books.forEach(book => {
+    books.forEach( (book) => {
       const ui = new UI()
       ui.addBookToList(book)
     })
@@ -226,8 +347,7 @@ class Store {
     })
     localStorage.setItem('books', JSON.stringify(books))
   }
-
-  static updateBook(book, index) {
+  static saveBook(book, index) {
     const books = Store.getBooks()
     books.splice(index, 1, book)
     localStorage.setItem('books', JSON.stringify(books))
@@ -301,69 +421,20 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
     UI.deleteBook(e.target)
     // remove book from LS
     Store.removeBook(e.target.dataset.bookid)
-
     UI.showAlert('wzornik uzunięty z bazy', 'alert-success')
   }
 
   //  Event EDIT book
   if (e.target.classList.contains('edit-btn')) {
-
     const bookId = e.target.dataset.bookid
-
-    // get book
-    const books = Store.getBooks()
-    const book = books.find(book => book.id === bookId)
-
-    const lastEntry = book.history[book.history.length - 1]
-
-    // get selectors
-    const editId = document.querySelector('#edit-id')
-    const editTitle = document.querySelector('#edit-title')
-    const editBrand = document.querySelector('#edit-brand')
-    const editName = document.querySelector('#edit-name')
-    const editAgency = document.querySelector('#edit-agency')
-    const editPhone = document.querySelector('#edit-phone')
-    const editDeposit = document.querySelector('#edit-deposit')
-
-    editId.value = book.id
-
-    // populate inputs with data from book object
-    editTitle.value = book.title
-    editBrand.value = book.brand
-
-    // setting values for inputs based on history
-    if (book.isLend === false || book.history.length === 0) {
-      editName.value = ''
-      editAgency.value = ''
-      editPhone.value = ''
-      editDeposit.value = ''
-
-    } else if (book.history.length > 0) {
-      editName.value = lastEntry.name
-      editAgency.value = lastEntry.agency
-      editPhone.value = lastEntry.phone
-      editDeposit.value = lastEntry.deposit
-    }
-
-    // enabling edit based on lend
-    if (!book.isLend) {
-      editName.disabled = true
-      editAgency.disabled = true
-      editPhone.disabled = true
-      editDeposit.disabled = true
-    } else {
-      editName.disabled = false
-      editAgency.disabled = false
-      editPhone.disabled = false
-      editDeposit.disabled = false
-    }
-
+    // show edit modal and populate inputs
+    UI.editBook(bookId)
   }
-
 })
 
 // save new data from modal edit
 document.querySelector('#edit-save').addEventListener('click', (e) => {
+  e.preventDefault()
 
   // Check if changes made
   // Save if changes mage
@@ -373,46 +444,22 @@ document.querySelector('#edit-save').addEventListener('click', (e) => {
   const editBookId = document.querySelector('#edit-id').value
   const books = Store.getBooks()
   const book = books.find(book => book.id === editBookId)
-
   const index = books.findIndex(entry => entry.id === book.id)
 
-  let isEdited = false
 
-  // get values to change
-  const editTitle = document.querySelector('#edit-title').value
-  const editBrand = document.querySelector('#edit-brand').value
-  const editName = document.querySelector('#edit-name').value
-  const editAgency = document.querySelector('#edit-agency').value
-  const editPhone = document.querySelector('#edit-phone').value
-  const editDeposit = document.querySelector('#edit-deposit').value
+  const editedBook = UI.updateBook(book)
 
-  // update values in book
-  // book.title = editTitle
-  // book.brand = editBrand
-
-  // book.history[book.history.length - 1].name = editName
-  // book.history[book.history.length - 1].agency = editAgency
-  // book.history[book.history.length - 1].phone = editPhone
-  book.history[book.history.length - 1].deposit = editDeposit
-
-
-  //     book.history[book.history.length - 1].edited = true
-  //     isEdited = true
-
-  // if (isEdited) {
-  //   Store.updateBook(book,index)
-  // }
-  Store.updateBook(book, index)
-
-  console.log(isEdited, book)
+  let isEdited = UI.isBookEdited(editedBook)
+  // save do local storage::
+  if (isEdited) {
+    Store.saveBook(editedBook, index)
+    // show edited values on the book list
+    UI.updateList(editedBook)
+  }
+  console.log(isEdited, editedBook)
   console.log(books)
-
-
-  // show edited values on the list
-
-
-  e.preventDefault()
-  // close window
+  // close modal
+  UI.hideModal()
 })
 
 
