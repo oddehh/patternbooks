@@ -292,7 +292,7 @@ class UI {
     // insert alert
     container.insertBefore(div, childNode)
 
-    setTimeout(() => document.querySelector('.alert').remove(), 3000)
+    setTimeout(() => document.querySelector('.alert').remove(), 2500)
   }
 
   static clearFields(...args) {
@@ -437,11 +437,11 @@ document.querySelector('#book-form').addEventListener('submit', e => {
     const lines = data.value.trim().replace(/(?:\r\n|\r|\n)/g, '|').split('|')
 
     // two dimensional array
-    const array = lines.map(line => line.trim().split('\t'))
+    const oneLineArray = lines.map(line => line.trim().split('\t'))
 
-    array.forEach(item => {
+    oneLineArray.forEach(item => {
       // title and brand is being converted to object by instanciation
-      const book = new Book(item[1], item[0])
+      const book = new Book(item[0].trim(), item[1].trim())
 
       Store.addBook(book)
       UI.addBookToList(book)
@@ -480,10 +480,6 @@ document.querySelector('#book-list').addEventListener('click', (e) => {
 document.querySelector('#edit-save').addEventListener('click', (e) => {
   e.preventDefault()
 
-  // Check if changes made
-  // Save if changes mage
-  // Display new list if changes made
-
   // get book
   const editBookId = document.querySelector('#edit-id').value
   const books = Store.getBooks()
@@ -499,11 +495,9 @@ document.querySelector('#edit-save').addEventListener('click', (e) => {
     Store.saveBook(editedBook, index)
     // show edited values on the book list
     UI.updateList(editedBook)
-    // close modal
-    UI.hideModal()
+    UI.showAlert('Zmiany zostały zapisane','alert-success')
   }
-  console.log(isEdited, editedBook)
-  console.log(books)
+  UI.hideModal()
 })
 
 
