@@ -21,18 +21,18 @@ class Book {
 
     if (!filteredBook.isLend) {
       // get selectors
-      const clientName = document.querySelector('#fullname')
-      const clientAgency = document.querySelector('#agency')
-      const clientPhone = document.querySelector('#phone')
-      const clientDeposit = document.querySelector('#deposit')
+      const clientName = document.querySelector('#fullname').value.trim()
+      const clientAgency = document.querySelector('#agency').value.trim()
+      const clientPhone = document.querySelector('#phone').value.trim()
+      const clientDeposit = document.querySelector('#deposit').value.trim()
 
-      if (!clientName.value) {
+      if (!clientName) {
         UI.showAlert(`Wpisz kto wypożycza`, 'alert-danger')
         return false
 
       } else {
 
-        const client = new Client(clientName.value, clientAgency.value, clientPhone.value, clientDeposit.value)
+        const client = new Client(clientName, clientAgency, clientPhone, clientDeposit)
 
         filteredBook.history.push(client)
         filteredBook.timesLend = filteredBook.timesLend + 1
@@ -135,8 +135,12 @@ class UI {
 
     // populate inputs with data from book object
     editId.value = book.id
+
     editTitle.defaultValue = book.title
+    editTitle.value = book.title
+
     editBrand.defaultValue = book.brand
+    editBrand.value = book.brand
 
     // setting values for inputs based on history
     if (book.isLend === false || book.history.length === 0) {
@@ -145,11 +149,22 @@ class UI {
       editPhone.value = ''
       editDeposit.value = ''
 
+      editName.defaultValue = ''
+      editAgency.defaultValue = ''
+      editPhone.defaultValue = ''
+      editDeposit.defaultValue = ''
+
     } else if (book.history.length > 0) {
       editName.defaultValue = lastEntry.name
       editAgency.defaultValue = lastEntry.agency
       editPhone.defaultValue = lastEntry.phone
       editDeposit.defaultValue = lastEntry.deposit
+
+      editName.value = lastEntry.name
+      editAgency.value = lastEntry.agency
+      editPhone.value = lastEntry.phone
+      editDeposit.value = lastEntry.deposit
+
     }
     // enabling edit based on lend
     if (!book.isLend) {
@@ -166,13 +181,42 @@ class UI {
   }
 
   static isBookEdited(book) {
-    const editInputsArray = Array.from(document.querySelectorAll('#edit-modal input'), input => input.defaultValue !== input.value)
-    if (editInputsArray.includes(true)) {
-      book.edited = true
-      return true
-    } else {
-      return false
+    const editInputsArray = document.querySelectorAll('#edit-modal input')
+
+    let isEdited = false
+
+    const editHistoryEntry = []
+
+    editInputsArray.forEach( (input) => {
+      if(input.defaultValue !== input.value.trim()) {
+
+        const edit = {
+          before: input.defaultValue,
+          after: input.value.trim(),
+          inputId: input.id,
+        }
+
+        editHistoryEntry.push(edit)
+      }
+    })
+
+    if (editHistoryEntry.length > 0) {
+      editHistoryEntry.push({dateEdited: new Date()})
+
+      // push to edit history
+      if (!book.editHistory || book.editHistory.length === 0) {
+        book.editHistory = []
+      }
+      book.editHistory.push(editHistoryEntry)
+      // additional info on edit
+      if(book.history.length > 0) {
+        book.history[book.history.length -1].edited = true
+      }
+
+      isEdited = true
     }
+
+    return isEdited
   }
 
   static updateBook(book) {
@@ -455,11 +499,11 @@ document.querySelector('#edit-save').addEventListener('click', (e) => {
     Store.saveBook(editedBook, index)
     // show edited values on the book list
     UI.updateList(editedBook)
+    // close modal
+    UI.hideModal()
   }
   console.log(isEdited, editedBook)
   console.log(books)
-  // close modal
-  UI.hideModal()
 })
 
 
